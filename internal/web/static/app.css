@@ -13,7 +13,7 @@
     --color-primary-strong: #174f65;
     --color-primary-soft: rgba(30, 101, 129, 0.12);
     --color-income: #2f7d5b;
-    --color-expense: #b4482f;
+    --color-expense: #dc2626;
     --color-transfer: #5a7186;
     --color-warning: #b08a2e;
     --shadow-soft: 0 18px 44px rgba(19, 39, 50, 0.07);
@@ -37,9 +37,24 @@
         --color-primary-strong: #2b86a8;
         --color-primary-soft: rgba(30, 101, 129, 0.22);
         --color-income: #4fa179;
-        --color-expense: #d06b4c;
+        --color-expense: #f87171;
         --color-transfer: #7c97aa;
         --shadow-soft: 0 20px 48px rgba(0, 0, 0, 0.28);
+    }
+
+    :root:not([data-theme="light"])[data-accent="green"] {
+        --color-primary-strong: #3ecf8e;
+        --color-primary-soft: rgba(18, 148, 107, 0.24);
+    }
+
+    :root:not([data-theme="light"])[data-accent="blue"] {
+        --color-primary-strong: #7c93f0;
+        --color-primary-soft: rgba(52, 87, 230, 0.24);
+    }
+
+    :root:not([data-theme="light"])[data-accent="indigo"] {
+        --color-primary-strong: #9d8cfb;
+        --color-primary-soft: rgba(109, 94, 240, 0.24);
     }
 }
 
@@ -57,9 +72,24 @@
     --color-primary-strong: #2b86a8;
     --color-primary-soft: rgba(30, 101, 129, 0.22);
     --color-income: #4fa179;
-    --color-expense: #d06b4c;
+    --color-expense: #f87171;
     --color-transfer: #7c97aa;
     --shadow-soft: 0 20px 48px rgba(0, 0, 0, 0.28);
+}
+
+:root[data-theme="dark"][data-accent="green"] {
+    --color-primary-strong: #3ecf8e;
+    --color-primary-soft: rgba(18, 148, 107, 0.24);
+}
+
+:root[data-theme="dark"][data-accent="blue"] {
+    --color-primary-strong: #7c93f0;
+    --color-primary-soft: rgba(52, 87, 230, 0.24);
+}
+
+:root[data-theme="dark"][data-accent="indigo"] {
+    --color-primary-strong: #9d8cfb;
+    --color-primary-soft: rgba(109, 94, 240, 0.24);
 }
 
 :root[data-accent="green"] {
@@ -247,11 +277,15 @@ h2 {
 }
 
 .ghost-button {
-    background: var(--color-surface-2);
+    background: var(--color-primary-soft);
     color: var(--color-primary-strong);
-    border: 1px solid var(--color-border);
+    border: 1px solid transparent;
     padding: 8px 10px;
     font-weight: 700;
+}
+
+.ghost-button:hover {
+    border-color: var(--color-primary);
 }
 
 .ghost-link {
@@ -291,6 +325,12 @@ h2 {
     background: var(--color-surface);
     color: var(--color-text);
     border: 1px solid var(--color-border);
+}
+
+.icon-button:hover {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    color: var(--color-primary-strong);
 }
 
 .metrics-grid {
@@ -450,7 +490,7 @@ h2 {
 }
 
 .form-message.error {
-    background: rgba(180, 72, 47, 0.12);
+    background: rgba(220, 38, 38, 0.12);
     color: var(--color-expense);
 }
 
@@ -540,6 +580,11 @@ h2 {
 
 .danger {
     color: var(--color-expense);
+}
+
+.danger:hover {
+    background: rgba(220, 38, 38, 0.12);
+    border-color: var(--color-expense);
 }
 
 .inline-edit {
