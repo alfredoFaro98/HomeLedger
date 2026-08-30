@@ -1,0 +1,29 @@
+{{define "reports"}}
+{{template "layout_start" .}}
+<section class="metrics-grid" aria-label="Riepilogo mese">
+    {{range .Metrics}}
+    <article class="metric-card" data-tone="{{.Tone}}">
+        <span>{{.Label}}</span>
+        <strong>{{.Value}}</strong>
+    </article>
+    {{end}}
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <h2>Uscite per categoria</h2>
+    </div>
+    <div class="report-list">
+        {{range .Reports}}
+        <article class="report-row" data-tone="{{.Tone}}">
+            <span>
+                <strong>{{.Label}}</strong>
+                <small>{{.Percentage}}</small>
+            </span>
+            <b>{{.Amount}}</b>
+        </article>
+        {{end}}
+    </div>
+</section>
+{{template "layout_end" .}}
+{{end}}

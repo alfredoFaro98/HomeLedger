@@ -1,0 +1,76 @@
+{{define "accounts"}}
+{{template "layout_start" .}}
+<section class="transaction-page">
+    <form class="entry-panel" hx-post="/accounts" hx-target="#accounts-result" hx-swap="innerHTML">
+        <div class="panel-header">
+            <h2>Nuovo conto</h2>
+        </div>
+
+        <div class="form-grid">
+            <label>
+                <span>Nome</span>
+                <input type="text" name="name" placeholder="Conto principale, Revolut, Contanti" required>
+            </label>
+            <label>
+                <span>Tipo</span>
+                <select name="kind" required>
+                    {{range .AccountForm.Kinds}}
+                    <option value="{{.Value}}">{{.Label}}</option>
+                    {{end}}
+                </select>
+            </label>
+            <label>
+                <span>Valuta</span>
+                <select name="currency" required>
+                    {{range .AccountForm.Currencies}}
+                    <option value="{{.Value}}">{{.Label}}</option>
+                    {{end}}
+                </select>
+            </label>
+            <label>
+                <span>Saldo iniziale</span>
+                <input type="number" name="opening_balance" step="0.01" placeholder="0.00">
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button class="primary-action" type="submit">
+                <i class="nav-icon" data-lucide="save" aria-hidden="true"></i>
+                Salva conto
+            </button>
+        </div>
+    </form>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Lista conti</h2>
+        </div>
+        <div id="accounts-result">
+            {{template "accounts_result" .}}
+        </div>
+    </section>
+</section>
+{{template "layout_end" .}}
+{{end}}
+
+{{define "accounts_result"}}
+{{if .Error}}
+<div class="form-message error">{{.Error}}</div>
+{{end}}
+<div class="account-list">
+    {{range .Accounts}}
+    <article class="account-row">
+        <span>
+            <strong>{{.Name}}</strong>
+            <small>{{.Type}}</small>
+        </span>
+        <b>{{.Balance}}</b>
+        {{if .ID}}
+        <button class="icon-button compact danger" type="button" hx-delete="/accounts/{{.ID}}" hx-target="#accounts-result" hx-swap="innerHTML" hx-confirm="Archiviare questo conto?" aria-label="Archivia conto">
+            <i class="nav-icon" data-lucide="archive" aria-hidden="true"></i>
+        </button>
+        {{end}}
+    </article>
+    {{end}}
+</div>
+{{end}}

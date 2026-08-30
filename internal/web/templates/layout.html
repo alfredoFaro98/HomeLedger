@@ -1,0 +1,58 @@
+{{define "layout_start"}}
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{.Title}} - HomeLedger</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/lib/icomoon-ultimate/icomoon-u.css">
+    <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+    <script src="https://unpkg.com/alpinejs@3.14.8" defer></script>
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+</head>
+<body>
+    <div class="app-shell" x-data="{ sidebarOpen: false }">
+        <aside class="sidebar" :class="{ 'is-open': sidebarOpen }">
+            <a class="brand" href="/">
+                <span class="brand-mark">H</span>
+                <span>
+                    <strong>HomeLedger</strong>
+                    <small>Spese personali</small>
+                </span>
+            </a>
+
+            <nav class="nav-list" aria-label="Navigazione principale">
+                {{range .Nav}}
+                <a class="nav-link {{if .Active}}is-active{{end}}" href="{{.Href}}" title="{{.Label}}">
+                    <i class="nav-icon" data-lucide="{{.Icon}}" aria-hidden="true"></i>
+                    <span>{{.Label}}</span>
+                </a>
+                {{end}}
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="topbar">
+                <button class="icon-button mobile-only" type="button" @click="sidebarOpen = !sidebarOpen" aria-label="Apri menu">
+                    <i class="nav-icon" data-lucide="menu" aria-hidden="true"></i>
+                </button>
+                <div>
+                    <p class="eyebrow">Gestionale spese</p>
+                    <h1>{{.Title}}</h1>
+                </div>
+                <button class="primary-action" type="button">
+                    <i class="nav-icon" data-lucide="plus" aria-hidden="true"></i>
+                    Nuovo movimento
+                </button>
+            </header>
+
+{{end}}
+
+{{define "layout_end"}}
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
+{{end}}

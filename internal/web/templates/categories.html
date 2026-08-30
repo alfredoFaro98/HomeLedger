@@ -1,0 +1,67 @@
+{{define "categories"}}
+{{template "layout_start" .}}
+<section class="transaction-page">
+    <form class="entry-panel" hx-post="/categories" hx-target="#categories-result" hx-swap="innerHTML">
+        <div class="panel-header">
+            <h2>Nuova categoria</h2>
+        </div>
+
+        <div class="form-grid">
+            <label>
+                <span>Nome</span>
+                <input type="text" name="name" placeholder="Casa, Spesa, Auto" required>
+            </label>
+            <label>
+                <span>Colore</span>
+                <input type="color" name="color" value="#1f7a8c">
+            </label>
+            <label>
+                <span>Icona</span>
+                <select name="icon">
+                    {{range .CategoryForm.Icons}}
+                    <option value="{{.Value}}">{{.Label}}</option>
+                    {{end}}
+                </select>
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button class="primary-action" type="submit">
+                <i class="nav-icon" data-lucide="save" aria-hidden="true"></i>
+                Salva categoria
+            </button>
+        </div>
+    </form>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Lista categorie</h2>
+        </div>
+        <div id="categories-result">
+            {{template "categories_result" .}}
+        </div>
+    </section>
+</section>
+{{template "layout_end" .}}
+{{end}}
+
+{{define "categories_result"}}
+{{if .Error}}
+<div class="form-message error">{{.Error}}</div>
+{{end}}
+<div class="category-list">
+    {{range .Categories}}
+    <article class="category-row">
+        <span class="category-swatch" style="{{.SwatchStyle}}">
+            <i class="nav-icon" data-lucide="{{.Icon}}" aria-hidden="true"></i>
+        </span>
+        <strong>{{.Name}}</strong>
+        {{if .ID}}
+        <button class="icon-button compact danger push-right" type="button" hx-delete="/categories/{{.ID}}" hx-target="#categories-result" hx-swap="innerHTML" hx-confirm="Cancellare questa categoria?" aria-label="Cancella categoria">
+            <i class="nav-icon" data-lucide="trash-2" aria-hidden="true"></i>
+        </button>
+        {{end}}
+    </article>
+    {{end}}
+</div>
+{{end}}

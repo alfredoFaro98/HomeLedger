@@ -1,0 +1,252 @@
+{{define "transactions"}}
+{{template "layout_start" .}}
+<section class="transaction-page">
+    <form class="entry-panel" hx-post="/transactions" hx-target="#transactions-result" hx-swap="innerHTML" x-data="{ kind: 'expense' }">
+        <div class="panel-header">
+            <h2>Nuovo movimento</h2>
+            <div class="segmented-control" role="radiogroup" aria-label="Tipo movimento">
+                <label>
+                    <input type="radio" name="kind" value="expense" x-model="kind" checked>
+                    <span>Uscita</span>
+                </label>
+                <label>
+                    <input type="radio" name="kind" value="income" x-model="kind">
+                    <span>Entrata</span>
+                </label>
+                <label>
+                    <input type="radio" name="kind" value="transfer" x-model="kind">
+                    <span>Trasferimento</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <label>
+                <span>Data</span>
+                <input type="date" name="occurred_on" value="{{.Form.Today}}" required>
+            </label>
+            <label>
+                <span>Conto</span>
+                <select name="account_id" required>
+                    {{range .Form.Accounts}}
+                    <option value="{{.ID}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </label>
+            <label x-show="kind === 'transfer'" x-cloak>
+                <span>Destinazione</span>
+                <select name="transfer_account_id">
+                    <option value="">Seleziona</option>
+                    {{range .Form.Accounts}}
+                    <option value="{{.ID}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </label>
+            <label>
+                <span>Importo</span>
+                <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required>
+            </label>
+            <label>
+                <span>Categoria</span>
+                <input type="text" name="category" list="category-suggestions" placeholder="Spesa, Casa, Stipendio">
+                <datalist id="category-suggestions">
+                    {{range .Form.Categories}}
+                    <option value="{{.Name}}"></option>
+                    {{end}}
+                </datalist>
+            </label>
+            <label>
+                <span>Controparte</span>
+                <input type="text" name="counterparty" placeholder="Negozio, azienda, persona">
+            </label>
+            <label class="wide-field">
+                <span>Descrizione</span>
+                <input type="text" name="description" placeholder="Es. Supermercato, affitto, rimborso">
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button class="primary-action" type="submit">
+                <i class="nav-icon" data-lucide="save" aria-hidden="true"></i>
+                Salva movimento
+            </button>
+        </div>
+    </form>
+
+    <form class="filter-panel" method="get" action="/transactions">
+        <div class="form-grid compact-grid">
+            <label>
+                <span>Da</span>
+                <input type="date" name="from" value="{{.Filters.From}}">
+            </label>
+            <label>
+                <span>A</span>
+                <input type="date" name="to" value="{{.Filters.To}}">
+            </label>
+            <label>
+                <span>Conto</span>
+                <select name="account_id">
+                    <option value="">Tutti</option>
+                    {{range .Accounts}}
+                    <option value="{{.ID}}" {{selected $.Filters.AccountID .ID}}>{{.Name}}</option>
+                    {{end}}
+                </select>
+            </label>
+            <label>
+                <span>Tipo</span>
+                <select name="kind">
+                    <option value="">Tutti</option>
+                    <option value="expense" {{if eq .Filters.Kind "expense"}}selected{{end}}>Uscite</option>
+                    <option value="income" {{if eq .Filters.Kind "income"}}selected{{end}}>Entrate</option>
+                    <option value="transfer" {{if eq .Filters.Kind "transfer"}}selected{{end}}>Trasferimenti</option>
+                </select>
+            </label>
+            <label>
+                <span>Categoria</span>
+                <input type="text" name="category" list="filter-category-suggestions" value="{{.Filters.Category}}">
+                <datalist id="filter-category-suggestions">
+                    {{range .Categories}}
+                    <option value="{{.Name}}"></option>
+                    {{end}}
+                </datalist>
+            </label>
+            <label>
+                <span>Cerca</span>
+                <input type="search" name="q" value="{{.Filters.Query}}">
+            </label>
+        </div>
+        <div class="form-actions">
+            <a class="ghost-link" href="/transactions">Reset</a>
+            <button class="primary-action" type="submit">
+                <i class="nav-icon" data-lucide="filter" aria-hidden="true"></i>
+                Filtra
+            </button>
+        </div>
+    </form>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Lista movimenti</h2>
+            <div class="toolbar-actions">
+                <a class="ghost-link" href="/transactions/export.csv">
+                    <i class="nav-icon" data-lucide="download" aria-hidden="true"></i>
+                    CSV
+                </a>
+                <form class="inline-upload" hx-post="/transactions/import.csv" hx-target="#transactions-result" hx-swap="innerHTML" enctype="multipart/form-data">
+                    <label class="ghost-link">
+                        <i class="nav-icon" data-lucide="upload" aria-hidden="true"></i>
+                        Importa
+                        <input type="file" name="file" accept=".csv,text/csv" onchange="this.form.requestSubmit()">
+                    </label>
+                </form>
+            </div>
+        </div>
+        <div id="transactions-result">
+            {{template "transactions_result" .}}
+        </div>
+    </section>
+</section>
+{{template "layout_end" .}}
+{{end}}
+
+{{define "transactions_result"}}
+{{if .Error}}
+<div class="form-message error">{{.Error}}</div>
+{{end}}
+{{if .Notice}}
+<div class="form-message success">{{.Notice}}</div>
+{{end}}
+{{template "transaction_manager" .Recent}}
+{{end}}
+
+{{define "transaction_manager"}}
+<div class="transaction-list">
+    {{range .}}
+    <article class="transaction-item" x-data="{ editing: false }">
+        <div class="transaction-row" data-tone="{{.Tone}}">
+            <span class="transaction-date">{{.Date}}</span>
+            <span>
+                <strong>{{.Payee}}</strong>
+                <small>{{if .TransferLabel}}{{.TransferLabel}}{{else}}{{.Category}}{{end}}</small>
+            </span>
+            <b>{{.Amount}}</b>
+            {{if .ID}}
+            <div class="row-actions">
+                <button class="icon-button compact" type="button" @click="editing = !editing" aria-label="Modifica movimento">
+                    <i class="nav-icon" data-lucide="pencil" aria-hidden="true"></i>
+                </button>
+                <button class="icon-button compact danger" type="button" hx-delete="/transactions/{{.ID}}" hx-target="#transactions-result" hx-swap="innerHTML" hx-confirm="Cancellare questo movimento?" aria-label="Cancella movimento">
+                    <i class="nav-icon" data-lucide="trash-2" aria-hidden="true"></i>
+                </button>
+            </div>
+            {{end}}
+        </div>
+
+        {{if .ID}}
+        <form class="inline-edit" x-show="editing" x-cloak hx-put="/transactions/{{.ID}}" hx-target="#transactions-result" hx-swap="innerHTML" x-data="{ kind: '{{.Kind}}' }">
+            {{$tx := .}}
+            <div class="form-grid compact-grid">
+                <label>
+                    <span>Data</span>
+                    <input type="date" name="occurred_on" value="{{.DateInput}}" required>
+                </label>
+                <label>
+                    <span>Conto</span>
+                    <select name="account_id" required>
+                        {{range .EditAccounts}}
+                        <option value="{{.ID}}" {{selected $tx.AccountID .ID}}>{{.Name}}</option>
+                        {{end}}
+                    </select>
+                </label>
+                <label>
+                    <span>Tipo</span>
+                    <select name="kind" x-model="kind" required>
+                        <option value="expense" {{if .IsExpense}}selected{{end}}>Uscita</option>
+                        <option value="income" {{if .IsIncome}}selected{{end}}>Entrata</option>
+                        <option value="transfer" {{if .IsTransfer}}selected{{end}}>Trasferimento</option>
+                    </select>
+                </label>
+                <label x-show="kind === 'transfer'" x-cloak>
+                    <span>Destinazione</span>
+                    <select name="transfer_account_id">
+                        <option value="">Seleziona</option>
+                        {{range .EditAccounts}}
+                        <option value="{{.ID}}" {{selected $tx.TransferAccountID .ID}}>{{.Name}}</option>
+                        {{end}}
+                    </select>
+                </label>
+                <label>
+                    <span>Importo</span>
+                    <input type="number" name="amount" step="0.01" min="0.01" value="{{.AmountInput}}" required>
+                </label>
+                <label>
+                    <span>Categoria</span>
+                    <input type="text" name="category" list="edit-category-suggestions-{{.ID}}" value="{{.Category}}">
+                    <datalist id="edit-category-suggestions-{{.ID}}">
+                        {{range .EditCategories}}
+                        <option value="{{.Name}}"></option>
+                        {{end}}
+                    </datalist>
+                </label>
+                <label>
+                    <span>Controparte</span>
+                    <input type="text" name="counterparty" value="{{.Counterparty}}">
+                </label>
+                <label class="wide-field">
+                    <span>Descrizione</span>
+                    <input type="text" name="description" value="{{.Description}}">
+                </label>
+            </div>
+            <div class="form-actions">
+                <button class="ghost-button" type="button" @click="editing = false">Annulla</button>
+                <button class="primary-action" type="submit">
+                    <i class="nav-icon" data-lucide="save" aria-hidden="true"></i>
+                    Aggiorna
+                </button>
+            </div>
+        </form>
+        {{end}}
+    </article>
+    {{end}}
+</div>
+{{end}}

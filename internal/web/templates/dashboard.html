@@ -1,0 +1,59 @@
+{{define "dashboard"}}
+{{template "layout_start" .}}
+<section class="metrics-grid" aria-label="Riepilogo">
+    {{range .Metrics}}
+    <article class="metric-card" data-tone="{{.Tone}}">
+        <span>{{.Label}}</span>
+        <strong>{{.Value}}</strong>
+    </article>
+    {{end}}
+</section>
+
+<section class="workspace-grid">
+    <div class="panel">
+        <div class="panel-header">
+            <h2>Conti</h2>
+            <button class="ghost-button" type="button">Aggiungi</button>
+        </div>
+        <div class="account-list">
+            {{range .Accounts}}
+            <article class="account-row">
+                <span>
+                    <strong>{{.Name}}</strong>
+                    <small>{{.Type}}</small>
+                </span>
+                <b>{{.Balance}}</b>
+            </article>
+            {{end}}
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <h2>Ultimi movimenti</h2>
+            <button class="ghost-button" type="button" hx-get="/partials/recent-transactions" hx-target="#recent-transactions" hx-swap="innerHTML">
+                Aggiorna
+            </button>
+        </div>
+        <div id="recent-transactions">
+            {{template "recent_transactions" .Recent}}
+        </div>
+    </div>
+</section>
+{{template "layout_end" .}}
+{{end}}
+
+{{define "recent_transactions"}}
+<div class="transaction-list">
+    {{range .}}
+    <article class="transaction-row" data-tone="{{.Tone}}">
+        <span class="transaction-date">{{.Date}}</span>
+        <span>
+            <strong>{{.Payee}}</strong>
+            <small>{{.Category}}</small>
+        </span>
+        <b>{{.Amount}}</b>
+    </article>
+    {{end}}
+</div>
+{{end}}
