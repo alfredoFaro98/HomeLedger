@@ -15,7 +15,9 @@
     <div class="app-shell" x-data="{ sidebarOpen: false }">
         <aside class="sidebar" :class="{ 'is-open': sidebarOpen }">
             <a class="brand" href="/">
-                <span class="brand-mark">H</span>
+                <span class="brand-mark" aria-hidden="true">
+                    <i class="icon-home7"></i>
+                </span>
                 <span>
                     <strong>HomeLedger</strong>
                     <small>Spese personali</small>
