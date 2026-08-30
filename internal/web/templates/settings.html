@@ -1,0 +1,83 @@
+{{define "settings"}}
+{{template "layout_start" .}}
+
+<section class="settings-grid" x-data>
+    <article class="panel settings-card">
+        <div>
+            <p class="eyebrow">Aspetto</p>
+            <h2>Tema interfaccia</h2>
+            <p class="muted-copy">Scegli come HomeLedger deve comportarsi rispetto al tema del sistema.</p>
+        </div>
+
+        <div class="settings-options" role="radiogroup" aria-label="Tema interfaccia">
+            <button class="theme-option" type="button" data-theme-choice="light">
+                <i class="nav-icon" data-lucide="sun" aria-hidden="true"></i>
+                <span>Chiaro</span>
+            </button>
+            <button class="theme-option" type="button" data-theme-choice="dark">
+                <i class="nav-icon" data-lucide="moon" aria-hidden="true"></i>
+                <span>Scuro</span>
+            </button>
+            <button class="theme-option" type="button" data-theme-choice="system">
+                <i class="nav-icon" data-lucide="monitor" aria-hidden="true"></i>
+                <span>Sistema</span>
+            </button>
+        </div>
+    </article>
+
+    <article class="panel settings-card">
+        <div>
+            <p class="eyebrow">Identita</p>
+            <h2>Accent color</h2>
+            <p class="muted-copy">Il colore guida bottoni, focus, logo e stati attivi.</p>
+        </div>
+
+        <div class="accent-options" role="radiogroup" aria-label="Colore accento">
+            <button class="accent-option" type="button" data-accent-choice="teal" style="--swatch: #1e6581;">
+                <span></span>
+                Petrolio
+            </button>
+            <button class="accent-option" type="button" data-accent-choice="green" style="--swatch: #12946b;">
+                <span></span>
+                Verde
+            </button>
+            <button class="accent-option" type="button" data-accent-choice="blue" style="--swatch: #3457e6;">
+                <span></span>
+                Blu
+            </button>
+            <button class="accent-option" type="button" data-accent-choice="indigo" style="--swatch: #6d5ef0;">
+                <span></span>
+                Indigo
+            </button>
+        </div>
+    </article>
+
+    <article class="panel settings-card settings-preview">
+        <div>
+            <p class="eyebrow">Preview</p>
+            <h2>Controllo visuale</h2>
+            <p class="muted-copy">Questa card usa le stesse variabili della dashboard.</p>
+        </div>
+        <div class="preview-stack">
+            <button class="primary-action" type="button">
+                <i class="nav-icon" data-lucide="plus" aria-hidden="true"></i>
+                Nuovo movimento
+            </button>
+            <div class="preview-row">
+                <span>Entrate</span>
+                <b class="tone-income">+1.850,00 EUR</b>
+            </div>
+            <div class="preview-row">
+                <span>Uscite</span>
+                <b class="tone-expense">-494,90 EUR</b>
+            </div>
+            <div class="preview-row">
+                <span>Trasferimenti</span>
+                <b class="tone-transfer">250,00 EUR</b>
+            </div>
+        </div>
+    </article>
+</section>
+
+{{template "layout_end" .}}
+{{end}}

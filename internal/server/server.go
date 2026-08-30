@@ -165,6 +165,7 @@ func New() http.Handler {
 	mux.HandleFunc("POST /categories", s.createCategory)
 	mux.HandleFunc("DELETE /categories/{id}", s.deleteCategory)
 	mux.HandleFunc("GET /reports", s.reports)
+	mux.HandleFunc("GET /settings", s.settings)
 	mux.HandleFunc("GET /partials/recent-transactions", s.recentTransactions)
 
 	return securityHeaders(basicAuth(mux))
@@ -420,6 +421,15 @@ func (s *Server) reports(w http.ResponseWriter, r *http.Request) {
 		Reports:     reportRowsFor(summary.Transactions),
 	}
 	s.render(w, "reports", data)
+}
+
+func (s *Server) settings(w http.ResponseWriter, r *http.Request) {
+	data := PageData{
+		Title:       "Impostazioni",
+		CurrentYear: time.Now().Year(),
+		Nav:         navFor("/settings"),
+	}
+	s.render(w, "settings", data)
 }
 
 func (s *Server) createTransaction(w http.ResponseWriter, r *http.Request) {
@@ -728,6 +738,7 @@ func navFor(activePath string) []NavItem {
 		{Label: "Conti", Href: "/accounts", Icon: "wallet"},
 		{Label: "Categorie", Href: "/categories", Icon: "tags"},
 		{Label: "Report", Href: "/reports", Icon: "chart-column"},
+		{Label: "Impostazioni", Href: "/settings", Icon: "settings"},
 	}
 
 	for i := range items {

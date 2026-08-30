@@ -5,11 +5,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{.Title}} - HomeLedger</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/lib/icomoon-ultimate/icomoon-u.css">
+    <script>
+        (() => {
+            const theme = localStorage.getItem("homeledger.theme") || "system";
+            const accent = localStorage.getItem("homeledger.accent") || "teal";
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.dataset.accent = accent;
+        })();
+    </script>
     <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
     <script src="https://unpkg.com/alpinejs@3.14.8" defer></script>
     <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
