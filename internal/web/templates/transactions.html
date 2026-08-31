@@ -1,7 +1,7 @@
 {{define "transactions"}}
 {{template "layout_start" .}}
 <section class="transaction-page">
-    <form class="entry-panel" hx-post="/transactions" hx-target="#transactions-result" hx-swap="innerHTML" x-data="{ kind: 'expense' }">
+    <form id="nuovo-movimento" class="entry-panel" hx-post="/transactions" hx-target="#transactions-result" hx-swap="innerHTML" x-data="{ kind: 'expense' }">
         <div class="panel-header">
             <h2>Nuovo movimento</h2>
             <div class="segmented-control" role="radiogroup" aria-label="Tipo movimento">
@@ -27,7 +27,8 @@
             </label>
             <label>
                 <span>Conto</span>
-                <select name="account_id" required>
+                <select name="account_id">
+                    <option value="">Nessun conto</option>
                     {{range .Form.Accounts}}
                     <option value="{{.ID}}">{{.Name}}</option>
                     {{end}}
@@ -48,12 +49,12 @@
             </label>
             <label>
                 <span>Categoria</span>
-                <input type="text" name="category" list="category-suggestions" placeholder="Spesa, Casa, Stipendio">
-                <datalist id="category-suggestions">
+                <select name="category">
+                    <option value="">Nessuna categoria</option>
                     {{range .Form.Categories}}
-                    <option value="{{.Name}}"></option>
+                    <option value="{{.Name}}">{{.Name}}</option>
                     {{end}}
-                </datalist>
+                </select>
             </label>
             <label>
                 <span>Controparte</span>
@@ -132,6 +133,10 @@
                     <i class="nav-icon" data-lucide="download" aria-hidden="true"></i>
                     CSV
                 </a>
+                <button type="button" class="ghost-link" onclick="document.getElementById('csv-help-modal').showModal()">
+                    <i class="nav-icon" data-lucide="info" aria-hidden="true"></i>
+                    Come importare
+                </button>
                 <form class="inline-upload" hx-post="/transactions/import.csv" hx-target="#transactions-result" hx-swap="innerHTML" enctype="multipart/form-data">
                     <label class="ghost-link">
                         <i class="nav-icon" data-lucide="upload" aria-hidden="true"></i>
@@ -141,6 +146,74 @@
                 </form>
             </div>
         </div>
+        <dialog id="csv-help-modal" class="modal">
+            <div class="modal-header">
+                <h3>Come importare un CSV</h3>
+                <button type="button" class="icon-button compact" onclick="document.getElementById('csv-help-modal').close()" aria-label="Chiudi">
+                    <i class="nav-icon" data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Il file deve avere una prima riga di intestazione con i nomi delle colonne (separate da virgola). Colonne riconosciute:</p>
+                <div class="modal-table-wrap">
+                    <table class="modal-table">
+                        <thead>
+                            <tr>
+                                <th>Colonna</th>
+                                <th>Obbligatoria</th>
+                                <th>Formato</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>date</code> / <code>data</code></td>
+                                <td>Sì</td>
+                                <td>AAAA-MM-GG, es. 2026-08-31</td>
+                            </tr>
+                            <tr>
+                                <td><code>amount</code> / <code>importo</code></td>
+                                <td>Sì</td>
+                                <td>Numero, es. -42.50 (il segno è opzionale se indichi il tipo)</td>
+                            </tr>
+                            <tr>
+                                <td><code>kind</code> / <code>tipo</code></td>
+                                <td>No</td>
+                                <td><code>income</code>, <code>expense</code> o <code>transfer</code> (dedotto dal segno se assente)</td>
+                            </tr>
+                            <tr>
+                                <td><code>account</code> / <code>conto</code></td>
+                                <td>No</td>
+                                <td>Nome di un conto esistente (altrimenti si usa il primo conto)</td>
+                            </tr>
+                            <tr>
+                                <td><code>transfer_account</code> / <code>conto_destinazione</code></td>
+                                <td>Solo per i trasferimenti</td>
+                                <td>Nome del conto di destinazione</td>
+                            </tr>
+                            <tr>
+                                <td><code>category</code> / <code>categoria</code></td>
+                                <td>No</td>
+                                <td>Nome categoria (testo libero)</td>
+                            </tr>
+                            <tr>
+                                <td><code>counterparty</code> / <code>controparte</code></td>
+                                <td>No</td>
+                                <td>Testo libero</td>
+                            </tr>
+                            <tr>
+                                <td><code>description</code> / <code>descrizione</code></td>
+                                <td>No</td>
+                                <td>Testo libero</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="field-hint">Esempio:</p>
+                <pre class="modal-example">date,amount,kind,account,category,description
+2026-08-15,-42.50,expense,Conto principale,Spesa,Supermercato
+2026-08-01,1850.00,income,Conto principale,Stipendio,Stipendio agosto</pre>
+            </div>
+        </dialog>
         <div id="transactions-result">
             {{template "transactions_result" .}}
         </div>
@@ -192,7 +265,8 @@
                 </label>
                 <label>
                     <span>Conto</span>
-                    <select name="account_id" required>
+                    <select name="account_id">
+                        <option value="" {{if eq $tx.AccountID 0}}selected{{end}}>Nessun conto</option>
                         {{range .EditAccounts}}
                         <option value="{{.ID}}" {{selected $tx.AccountID .ID}}>{{.Name}}</option>
                         {{end}}
@@ -221,12 +295,13 @@
                 </label>
                 <label>
                     <span>Categoria</span>
-                    <input type="text" name="category" list="edit-category-suggestions-{{.ID}}" value="{{.Category}}">
-                    <datalist id="edit-category-suggestions-{{.ID}}">
+                    <select name="category">
+                        <option value="">Nessuna categoria</option>
+                        {{$currentCategory := .Category}}
                         {{range .EditCategories}}
-                        <option value="{{.Name}}"></option>
+                        <option value="{{.Name}}" {{if eq .Name $currentCategory}}selected{{end}}>{{.Name}}</option>
                         {{end}}
-                    </datalist>
+                    </select>
                 </label>
                 <label>
                     <span>Controparte</span>

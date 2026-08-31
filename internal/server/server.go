@@ -142,7 +142,14 @@ func New() http.Handler {
 
 	s := &Server{
 		templates: template.Must(template.New("").Funcs(template.FuncMap{
-			"selected": selected,
+			"selected":     selected,
+			"isCustomIcon": func(icon string) bool { return strings.HasPrefix(icon, "data:image/") },
+			"iconSrc": func(icon string) template.URL {
+				if strings.HasPrefix(icon, "data:image/") {
+					return template.URL(icon)
+				}
+				return ""
+			},
 		}).ParseFS(web.Files, "templates/*.html")),
 		static:    http.FileServer(http.FS(staticFS)),
 		store:     appStore,
@@ -866,6 +873,7 @@ func categoryForm() CategoryForm {
 		Icons: []Option{
 			{Value: "home", Label: "Casa"},
 			{Value: "shopping-cart", Label: "Spesa"},
+			{Value: "utensils", Label: "Cibo"},
 			{Value: "car", Label: "Trasporti"},
 			{Value: "briefcase", Label: "Lavoro"},
 			{Value: "heart-pulse", Label: "Salute"},
@@ -949,6 +957,9 @@ func transactionsFor(transactions []store.Transaction, limit int, accounts []Acc
 		}
 		if label == "" {
 			label = tx.AccountName
+		}
+		if label == "" {
+			label = "Movimento"
 		}
 
 		category := tx.Category

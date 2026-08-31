@@ -148,9 +148,13 @@ func OpenFromEnv(ctx context.Context) (Store, error) {
 }
 
 func ParseTransactionForm(values map[string][]string) (TransactionInput, error) {
-	accountID, err := strconv.ParseInt(first(values, "account_id"), 10, 64)
-	if err != nil || accountID <= 0 {
-		return TransactionInput{}, fmt.Errorf("seleziona un conto valido")
+	accountID := int64(0)
+	if raw := strings.TrimSpace(first(values, "account_id")); raw != "" {
+		parsed, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil || parsed <= 0 {
+			return TransactionInput{}, fmt.Errorf("conto non valido")
+		}
+		accountID = parsed
 	}
 
 	amount, err := strconv.ParseFloat(first(values, "amount"), 64)
@@ -253,6 +257,12 @@ func ParseCategoryForm(values map[string][]string) (CategoryInput, error) {
 	icon := strings.TrimSpace(first(values, "icon"))
 	if icon == "" {
 		icon = "circle"
+	}
+	if strings.HasPrefix(icon, "data:image/") {
+		const maxIconDataLength = 140_000 // ~100 KB di immagine codificata in base64
+		if len(icon) > maxIconDataLength {
+			return CategoryInput{}, fmt.Errorf("l'icona caricata supera la dimensione massima consentita (100 KB)")
+		}
 	}
 
 	return CategoryInput{

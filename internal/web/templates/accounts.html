@@ -1,7 +1,7 @@
 {{define "accounts"}}
 {{template "layout_start" .}}
 <section class="transaction-page">
-    <form class="entry-panel" hx-post="/accounts" hx-target="#accounts-result" hx-swap="innerHTML">
+    <form id="nuovo-conto" class="entry-panel" hx-post="/accounts" hx-target="#accounts-result" hx-swap="innerHTML">
         <div class="panel-header">
             <h2>Nuovo conto</h2>
         </div>

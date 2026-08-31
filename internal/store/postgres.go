@@ -179,8 +179,8 @@ func (s *PostgresStore) ListTransactions(ctx context.Context, filter Transaction
 	query := `
 		SELECT
 			t.id,
-			t.account_id,
-			a.name,
+			COALESCE(t.account_id, 0),
+			COALESCE(a.name, ''),
 			COALESCE(ta.id, 0),
 			COALESCE(ta.name, ''),
 			t.occurred_on,
@@ -190,7 +190,7 @@ func (s *PostgresStore) ListTransactions(ctx context.Context, filter Transaction
 			t.amount,
 			t.kind
 		FROM transactions t
-		JOIN accounts a ON a.id = t.account_id
+		LEFT JOIN accounts a ON a.id = t.account_id
 		LEFT JOIN accounts ta ON ta.id = t.transfer_account_id
 		LEFT JOIN categories c ON c.id = t.category_id
 		LEFT JOIN counterparties cp ON cp.id = t.counterparty_id
@@ -258,6 +258,7 @@ func (s *PostgresStore) CreateTransaction(ctx context.Context, input Transaction
 	if err != nil {
 		return err
 	}
+	accountID := nullableInt64(input.AccountID)
 	transferAccountID := nullableInt64(input.TransferAccountID)
 
 	_, err = s.db.ExecContext(ctx, `
@@ -266,7 +267,7 @@ func (s *PostgresStore) CreateTransaction(ctx context.Context, input Transaction
 			occurred_on, description, amount, currency, kind
 		)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'EUR', $9);
-	`, input.UserID, input.AccountID, transferAccountID, categoryID, counterpartyID, input.OccurredOn, input.Description, input.Amount, input.Kind)
+	`, input.UserID, accountID, transferAccountID, categoryID, counterpartyID, input.OccurredOn, input.Description, input.Amount, input.Kind)
 	if err != nil {
 		return fmt.Errorf("create transaction: %w", err)
 	}
@@ -282,6 +283,7 @@ func (s *PostgresStore) UpdateTransaction(ctx context.Context, id int64, input T
 	if err != nil {
 		return err
 	}
+	accountID := nullableInt64(input.AccountID)
 	transferAccountID := nullableInt64(input.TransferAccountID)
 
 	result, err := s.db.ExecContext(ctx, `
@@ -296,7 +298,7 @@ func (s *PostgresStore) UpdateTransaction(ctx context.Context, id int64, input T
 			kind = $8,
 			updated_at = now()
 		WHERE user_id = $9 AND id = $10;
-	`, input.AccountID, transferAccountID, categoryID, counterpartyID, input.OccurredOn, input.Description, input.Amount, input.Kind, input.UserID, id)
+	`, accountID, transferAccountID, categoryID, counterpartyID, input.OccurredOn, input.Description, input.Amount, input.Kind, input.UserID, id)
 	if err != nil {
 		return fmt.Errorf("update transaction: %w", err)
 	}

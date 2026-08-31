@@ -15,13 +15,26 @@
                 <span>Colore</span>
                 <input type="color" name="color" value="#1f7a8c">
             </label>
-            <label>
+            <label class="icon-field">
                 <span>Icona</span>
-                <select name="icon">
+                <div class="icon-picker" role="listbox" aria-label="Scegli icona" x-data="iconPicker('{{(index .CategoryForm.Icons 0).Value}}')">
+                    <input type="hidden" name="icon" :value="icon">
                     {{range .CategoryForm.Icons}}
-                    <option value="{{.Value}}">{{.Label}}</option>
+                    <button type="button" class="icon-option" role="option" title="{{.Label}}" aria-label="{{.Label}}" :aria-selected="icon === '{{.Value}}'" :class="{ 'is-selected': !isCustom && icon === '{{.Value}}' }" @click="selectIcon('{{.Value}}')">
+                        <i class="nav-icon" data-lucide="{{.Value}}" aria-hidden="true"></i>
+                    </button>
                     {{end}}
-                </select>
+                    <label class="icon-option icon-upload" title="Carica un'icona personalizzata" :class="{ 'is-selected': isCustom }">
+                        <template x-if="isCustom">
+                            <img :src="icon" alt="" class="icon-upload-preview">
+                        </template>
+                        <template x-if="!isCustom">
+                            <i class="nav-icon" data-lucide="upload" aria-hidden="true"></i>
+                        </template>
+                        <input type="file" class="visually-hidden" accept="image/png,image/jpeg,image/svg+xml,image/webp" @change="handleUpload($event)">
+                    </label>
+                    <small class="field-hint" :class="{ 'is-error': error }" x-text="error || hint"></small>
+                </div>
             </label>
         </div>
 
@@ -53,7 +66,11 @@
     {{range .Categories}}
     <article class="category-row">
         <span class="category-swatch" style="{{.SwatchStyle}}">
+            {{if isCustomIcon .Icon}}
+            <img src="{{iconSrc .Icon}}" alt="" class="category-swatch-img">
+            {{else}}
             <i class="nav-icon" data-lucide="{{.Icon}}" aria-hidden="true"></i>
+            {{end}}
         </span>
         <strong>{{.Name}}</strong>
         {{if .ID}}

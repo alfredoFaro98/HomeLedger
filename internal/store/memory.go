@@ -211,7 +211,7 @@ func (s *MemoryStore) CreateTransaction(ctx context.Context, input TransactionIn
 			transferAccountName = account.Name
 		}
 	}
-	if accountName == "" {
+	if input.AccountID != 0 && accountName == "" {
 		return fmt.Errorf("conto non trovato")
 	}
 	if input.Kind == "transfer" && transferAccountName == "" {
@@ -249,7 +249,7 @@ func (s *MemoryStore) UpdateTransaction(ctx context.Context, id int64, input Tra
 			transferAccountName = account.Name
 		}
 	}
-	if accountName == "" {
+	if input.AccountID != 0 && accountName == "" {
 		return fmt.Errorf("conto non trovato")
 	}
 	if input.Kind == "transfer" && transferAccountName == "" {
