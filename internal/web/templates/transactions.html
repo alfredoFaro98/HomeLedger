@@ -104,12 +104,12 @@
             </label>
             <label>
                 <span>Categoria</span>
-                <input type="text" name="category" list="filter-category-suggestions" value="{{.Filters.Category}}">
-                <datalist id="filter-category-suggestions">
+                <select name="category">
+                    <option value="">Tutte</option>
                     {{range .Categories}}
-                    <option value="{{.Name}}"></option>
+                    <option value="{{.Name}}" {{if eq .Name $.Filters.Category}}selected{{end}}>{{.Name}}</option>
                     {{end}}
-                </datalist>
+                </select>
             </label>
             <label>
                 <span>Cerca</span>
